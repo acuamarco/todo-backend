@@ -6,6 +6,7 @@ import com.example.demo.data.TaskRepository;
 import com.example.demo.model.Task;
 import com.example.demo.service.TaskService;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,11 @@ public class TaskServiceImpl implements TaskService {
     task.setCreatedAt(LocalDate.now());
     task.setUpdatedAt(LocalDate.now());
     return taskRepository.save(task);
+  }
+
+  @Override
+  public List<Task> getAllTasks() {
+    return taskRepository.findAll();
   }
 
   @Override

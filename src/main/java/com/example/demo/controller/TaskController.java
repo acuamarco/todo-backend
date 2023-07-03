@@ -4,6 +4,7 @@ import com.example.demo.data.TaskAlreadyExistsException;
 import com.example.demo.data.TaskNotFoundException;
 import com.example.demo.model.Task;
 import com.example.demo.service.TaskService;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,11 @@ public class TaskController {
     } catch (TaskAlreadyExistsException e) {
       return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+  }
+
+  @GetMapping("/")
+  public ResponseEntity<List<Task>> getTasks() {
+    return ResponseEntity.ok(taskService.getAllTasks());
   }
 
   @GetMapping("/{taskId}")

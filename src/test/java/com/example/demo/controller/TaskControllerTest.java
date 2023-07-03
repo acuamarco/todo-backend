@@ -11,6 +11,7 @@ import com.example.demo.data.TaskAlreadyExistsException;
 import com.example.demo.data.TaskNotFoundException;
 import com.example.demo.model.Task;
 import com.example.demo.service.TaskService;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,6 +72,22 @@ class TaskControllerTest {
 
     assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
   }
+
+  @Test
+  void givenTasksExist_whenGetTasks_thenReturnExistingTasks() {
+    var tasks = List.of(
+        getTestTask(),
+        getTestTask(),
+        getTestTask()
+    );
+    when(taskService.getAllTasks()).thenReturn(tasks);
+
+    var result = taskService.getAllTasks();
+
+    assertNotNull(result);
+    assertEquals(result, tasks);
+  }
+
 
   @Test
   void givenValidTask_whenUpdateTask_thenReturnOk() throws TaskNotFoundException {

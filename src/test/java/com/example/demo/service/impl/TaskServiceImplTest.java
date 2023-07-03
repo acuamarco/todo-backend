@@ -13,6 +13,7 @@ import com.example.demo.data.TaskAlreadyExistsException;
 import com.example.demo.data.TaskNotFoundException;
 import com.example.demo.data.TaskRepository;
 import com.example.demo.model.Task;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,21 @@ class TaskServiceImplTest {
 
     assertNotNull(result);
     assertEquals(task, result);
+  }
+
+  @Test
+  void givenTasksExist_whenGetAllTasks_thenReturnExistingTasks() {
+    var tasks = List.of(
+        getTestTask(),
+        getTestTask(),
+        getTestTask()
+    );
+    when(taskRepository.findAll()).thenReturn(tasks);
+
+    var result = taskService.getAllTasks();
+
+    assertNotNull(result);
+    assertEquals(result, tasks);
   }
 
   @Test
