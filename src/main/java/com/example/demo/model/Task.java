@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.lang.NonNull;
+
 @Data
 @AllArgsConstructor
 @Entity
@@ -23,7 +24,6 @@ public class Task {
   private LocalDate updatedAt;
 
   public Task() {
-    this.id = UUID.randomUUID();
     this.title = "New Task";
     this.completed = false;
     this.priority = 0;
