@@ -6,11 +6,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.demo.data.TaskAlreadyExistsException;
 import com.example.demo.data.TaskNotFoundException;
 import com.example.demo.model.Task;
 import com.example.demo.service.TaskService;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +26,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 class TaskControllerTest {
+
+  @Mock
+  private MockMvc mockMvc;
 
   @Mock
   private TaskService taskService;
@@ -31,6 +44,7 @@ class TaskControllerTest {
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
+    this.mockMvc = MockMvcBuilders.standaloneSetup(taskController).build();
   }
   @Test
   void givenValidTask_whenCreateTask_thenReturnCreated() throws TaskAlreadyExistsException {
@@ -111,7 +125,7 @@ class TaskControllerTest {
   }
 
   @Test
-  void givenValidTaskId_WhenDeleteTask_ThenReturnOk() throws TaskNotFoundException {
+  void givenValidTaskId_whenDeleteTask_t6henReturnOk() throws TaskNotFoundException {
     var task = getTestTask();
     doNothing().when(taskService).deleteTask(task.getId());
 
@@ -121,12 +135,40 @@ class TaskControllerTest {
   }
 
   @Test
-  void givenNonExistingTaskId_WhenDeleteTask_ThenReturnNotFound() throws TaskNotFoundException {
+  void givenNonExistingTaskId_whenDeleteTask_thenReturnNotFound() throws TaskNotFoundException {
     var task = getTestTask();
     doThrow(new TaskNotFoundException("not found")).when(taskService).deleteTask(task.getId());
 
     var result = taskController.deleteTask(task.getId());
 
     assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+  }
+
+  @Test
+  void givenGetRequestWithNoId_whenNoTaskExist_thenReturnAnEmptyList() throws Exception {
+    this.mockMvc.perform(get("/api/v1/tasks/"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"))
+        .andDo(MockMvcResultHandlers.print())
+        .andReturn();
+  }
+
+  @Test
+  void givenGetRequestWithNoId_whenTasksExist_thenReturnTaskList() throws Exception {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    var tasks = List.of(
+        getTestTask(),
+        getTestTask(),
+        getTestTask()
+    );
+    var jsonTasks = objectMapper.writeValueAsString(tasks);
+    when(taskService.getAllTasks()).thenReturn(tasks);
+
+    this.mockMvc.perform(get("/api/v1/tasks/"))
+        .andExpect(status().isOk())
+        .andExpect(content().json(jsonTasks))
+        .andDo(MockMvcResultHandlers.print())
+        .andReturn();
   }
 }
