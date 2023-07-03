@@ -15,7 +15,8 @@ Unit tests have been added in the solution. You can run them automatically using
 I would create a CI/CD pipeline and make sure to run this command.
 
 5- Share the codebase and readme file on how to test it – (typically Github location or share via onedrive,etc)
-https://github.com/acuamarco/todo-backend/blob/master/readme.txt
+It is possible to test the application manually using Postman.
+An exported collection of requests has been included in `test/local test.postman_collection.json`.
 
 6- If asked to add on simple authentication for internal users, what direction would you take? How would that direction differ from authentication for REST APIs with third parties? Provide examples
 For internal users, we could use HTTP Basic Auth, with a username and password.
